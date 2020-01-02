@@ -45,27 +45,21 @@ public class ConnectionToDB2 {
 				stmt = connection.createStatement();
 				System.out.println("**** Created JDBC Statement object");
 
-				// Get meta data
-//				DatabaseMetaData metaData = (DatabaseMetaData) connection.getMetaData();
-//				colums = (ResultSet) metaData.getColumns(null, null, "ACCT", null);
 
-				// Find all column in DB
-//				ResultSetMetaData resultSetMetaData = colums.getMetaData();
-//				int columCount = resultSetMetaData.getColumnCount();
-//				System.out.println(columCount);
 
 				// Create query
-				String query = "SELECT * FROM ACCT.ACCOUNT_RESULT_DETAILS ";
-//						+ "WHERE ACC_ID IN (SELECT ACC_ID FROM ACCT.ACCOUNT a WHERE ACC_NUMBER LIKE '%LT542140030002190972%')\r\n"
-//						+ "  AND CALCU_TYPE = 'INT'\r\n" + "  ORDER BY CALCU_REG_TIMESTAMP DESC";
+				String query = "SELECT * FROM ACCT.ACCOUNT_RESULT_DETAILS "
+						+ "WHERE ACC_ID IN (SELECT ACC_ID FROM ACCT.ACCOUNT a WHERE ACC_NUMBER LIKE '%LT542140030002190972%')\r\n"
+						+ "  AND CALCU_TYPE = 'INT'\r\n" + "  ORDER BY CALCU_REG_TIMESTAMP DESC";
 
 				// Execute a query and generate a ResultSet instance
 				rs = (ResultSet) stmt.executeQuery(query);
 				System.out.println("**** Created JDBC ResultSet object");
 
-				// Get column counter
+				// Get columns counter
 				int columCount = rs.getMetaData().getColumnCount();
 				
+				// Get columns name
 				List<String> columnNames = new ArrayList<String>();
 				for (int i = 1; i <= columCount; i++) {
 					String columnName =  rs.getMetaData().getColumnName(i);
