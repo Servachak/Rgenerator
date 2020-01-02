@@ -20,7 +20,7 @@ public class WriteDataToExcel implements WriteDataToExcelInterface {
 		Sheet sheet = workbook.createSheet(nameSheet);
 
 		try {
-			FileOutputStream stream = new FileOutputStream(nameFile);
+			FileOutputStream stream = new FileOutputStream(nameFile + ".xls");
 
 			workbook.write(stream);
 			stream.close();
@@ -32,6 +32,42 @@ public class WriteDataToExcel implements WriteDataToExcelInterface {
 
 			e.printStackTrace();
 		}
+
+	}
+
+	public void createExcelFile(String fineName) {
+
+		try {
+			FileOutputStream fileOutputStream = new FileOutputStream(nameFile + ".xls");
+			
+			fileOutputStream.close();
+		} catch (FileNotFoundException e) {
+
+			System.out.println("File is not created");
+			e.printStackTrace();
+
+		} catch (IOException e) {
+
+			e.printStackTrace();
+		}
+	}
+
+	public void addSheetToFile(String nameSheet) {
+		
+		Workbook workbook = new HSSFWorkbook();
+		
+		Sheet sheet = workbook.createSheet(nameSheet);
+		
+		try {
+			workbook.close();
+		} catch (IOException e) {
+			System.out.println("Workbook still be opened");
+			e.printStackTrace();
+		}
+
+	}
+
+	public void addRowToSheet() {
 
 	}
 }
