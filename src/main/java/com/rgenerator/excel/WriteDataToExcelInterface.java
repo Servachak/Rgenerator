@@ -1,14 +1,13 @@
 package com.rgenerator.excel;
 
+import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 
 public interface WriteDataToExcelInterface {
 
-	void createExcelFile(String fineName);
+	void createExcelFile(String fineName,Sheet sheet,Workbook workbook);
 	
-	void addSheetToFile(String nameSheet);
-	
-	void addRowToSheet();
+	Sheet createSheet(String sheetName, Workbook workbook);
 	
 	
 	

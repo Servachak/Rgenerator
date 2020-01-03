@@ -3,8 +3,15 @@ import java.sql.ResultSetMetaData;
 
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+
+import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
 
 import com.ibm.db2.jcc.am.Connection;
 import com.ibm.db2.jcc.am.DatabaseMetaData;
@@ -23,8 +30,11 @@ public class ConnectionToDB2 {
 		Statement stmt = null;
 		ResultSet rs = null;
 		ResultSet colums = null;
-		WriteDataToExcel dataToExcel = new WriteDataToExcel();
+		WriteDataToExcel writeDataToExcel;
+		Cell cell;
+		Row row;
 
+		LocalDate date = LocalDate.now();
 		try {
 
 			// loading DB2 driver
@@ -45,8 +55,6 @@ public class ConnectionToDB2 {
 				stmt = connection.createStatement();
 				System.out.println("**** Created JDBC Statement object");
 
-
-
 				// Create query
 				String query = "SELECT * FROM ACCT.ACCOUNT_RESULT_DETAILS "
 						+ "WHERE ACC_ID IN (SELECT ACC_ID FROM ACCT.ACCOUNT a WHERE ACC_NUMBER LIKE '%LT542140030002190972%')\r\n"
@@ -57,26 +65,63 @@ public class ConnectionToDB2 {
 				System.out.println("**** Created JDBC ResultSet object");
 
 				// Get columns counter
-				int columCount = rs.getMetaData().getColumnCount();
-				
+				ResultSetMetaData rsMetadata = rs.getMetaData();
+				int columCount = rsMetadata.getColumnCount();
+
 				// Get columns name
 				List<String> columnNames = new ArrayList<String>();
 				for (int i = 1; i <= columCount; i++) {
-					String columnName =  rs.getMetaData().getColumnName(i);
+					String columnName = rsMetadata.getColumnName(i);
 					columnNames.add(columnName);
 				}
 
-				System.out.println(columnNames.toString());
+				// create Excel file
+				Workbook workbook = new HSSFWorkbook();
 
-//				while (rs.next()) {
-//
-//					String ACC_ID = rs.getString("ACC_ID");
-//					String FUNCTION_ID = rs.getString("FUNCTION_ID");
-//
-//					System.out.printf("%s  %s\n", ACC_ID, FUNCTION_ID);
-//
-//				}
+				// create new Sheet
+				String sheetName = rsMetadata.getColumnName(1);
+				Sheet sheet = workbook.createSheet(sheetName);
+
+				// write data to Excel
+				writeDataToExcel = new WriteDataToExcel();
+				String fileName = rsMetadata.getColumnLabel(1) + " " + date;
+
+				int currentRow = 0;
+
+				while (rs.next()) {
+
+					for (int i = 1; i < 2; i++) {
+						row = sheet.createRow(currentRow);
+						if (currentRow == 0) {
+
+							for (int k = 1; k <= columCount; k++) {
+								cell = row.createCell(k - 1);
+								cell.setCellValue(rsMetadata.getColumnName(k));
+
+							}
+							currentRow++;
+						}
+						row = sheet.createRow(currentRow);
+						for (int j = 1; j <= columCount; j++) {
+
+							// get data from DB
+							System.out.print(rs.getString(j) + " ");
+
+							cell = row.createCell(j - 1);
+							cell.setCellValue(rs.getString(j));
+						}
+						System.out.print(" ");
+					}
+					currentRow++;
+				}
+				System.out.println();
+				for (int i = 0; i < columCount; i++) {
+					sheet.autoSizeColumn(i);
+				}
+				writeDataToExcel.createExcelFile(fileName, sheet, workbook);
 			}
+
+//			}
 			System.out.println("**** Fetched all rows from JDBC ResultSet");
 
 			// Close the ResultSet
@@ -98,7 +143,9 @@ public class ConnectionToDB2 {
 				System.out.println("Connection is closed");
 			}
 
-		} catch (ClassNotFoundException e) {
+		} catch (
+
+		ClassNotFoundException e) {
 			System.err.println("Could not load JDBC driver");
 			System.out.println("Exception: " + e);
 			e.printStackTrace();
